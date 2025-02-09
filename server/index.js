@@ -2,6 +2,10 @@ import express from 'express';
 import { registerRoutes } from './routes.js';
 import { setupVite, serveStatic, log } from './vite.js';
 import { storage } from './storage.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 app.use(express.json());
@@ -60,7 +64,7 @@ app.use((err, _req, res, _next) => {
       serveStatic(app);
     }
 
-    // ALWAYS serve on 0.0.0.0 for Replit
+    // Use environment variables for configuration
     const PORT = process.env.PORT || 5000;
     server.listen(PORT, "0.0.0.0", () => {
       log(`Server running at http://0.0.0.0:${PORT}`);
