@@ -13,7 +13,18 @@ export class MongoStorage {
   }
 
   async connect() {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/realestate-dms');
+    try {
+      const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/realestate-dms';
+      console.log('Connecting to MongoDB...');
+      await mongoose.connect(uri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      });
+      console.log('MongoDB connected successfully');
+    } catch (error) {
+      console.error('MongoDB connection error:', error);
+      throw error;
+    }
   }
 
   // User methods
@@ -26,14 +37,24 @@ export class MongoStorage {
   }
 
   async createUser(userData) {
-    const user = new User(userData);
-    return await user.save();
+    try {
+      const user = new User(userData);
+      return await user.save();
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
   }
 
   // Document methods
   async createDocument(docData) {
-    const doc = new Document(docData);
-    return await doc.save();
+    try {
+      const doc = new Document(docData);
+      return await doc.save();
+    } catch (error) {
+      console.error('Error creating document:', error);
+      throw error;
+    }
   }
 
   async getDocument(id) {
@@ -41,29 +62,44 @@ export class MongoStorage {
   }
 
   async getDocumentsByUser(userId) {
-    const userAccess = await DocumentAccess.find({ userId });
-    const accessibleDocIds = userAccess.map(access => access.documentId);
-    
-    return await Document.find({
-      $or: [
-        { uploadedBy: userId },
-        { _id: { $in: accessibleDocIds } }
-      ]
-    });
+    try {
+      const userAccess = await DocumentAccess.find({ userId });
+      const accessibleDocIds = userAccess.map(access => access.documentId);
+
+      return await Document.find({
+        $or: [
+          { uploadedBy: userId },
+          { _id: { $in: accessibleDocIds } }
+        ]
+      });
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      throw error;
+    }
   }
 
   async updateDocumentStatus(id, status) {
-    return await Document.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
+    try {
+      return await Document.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true }
+      );
+    } catch (error) {
+      console.error('Error updating document status:', error);
+      throw error;
+    }
   }
 
   // Document Access methods
   async setDocumentAccess(access) {
-    const docAccess = new DocumentAccess(access);
-    return await docAccess.save();
+    try {
+      const docAccess = new DocumentAccess(access);
+      return await docAccess.save();
+    } catch (error) {
+      console.error('Error setting document access:', error);
+      throw error;
+    }
   }
 
   async getDocumentAccess(documentId, userId) {
