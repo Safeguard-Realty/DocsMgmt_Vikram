@@ -14,7 +14,10 @@ export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description"),
-  type: text("type").notNull(),
+  category: text("category", { enum: ["property", "kyc"] }).notNull(),
+  type: text("type", { 
+    enum: ["deed", "contract", "mortgage", "inspection", "aadhar", "passport"] 
+  }).notNull(),
   status: text("status", { enum: ["draft", "pending", "approved", "rejected"] }).notNull(),
   uploadedBy: integer("uploaded_by").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

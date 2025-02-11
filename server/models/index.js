@@ -10,11 +10,19 @@ const userSchema = new mongoose.Schema({
   },
   fullName: { type: String, required: true }
 });
-
 const documentSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
-  type: { type: String, required: true },
+  category: { 
+    type: String, 
+    required: true, 
+    enum: ['property', 'kyc'] // ✅ Added category with enum validation
+  },
+  type: { 
+    type: String, 
+    required: true,
+    enum: ['deed', 'contract', 'mortgage', 'inspection', 'aadhar', 'passport'] // ✅ Ensure type aligns with category
+  },
   status: { 
     type: String, 
     required: true,
