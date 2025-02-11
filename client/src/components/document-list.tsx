@@ -39,7 +39,7 @@ export function DocumentList() {
       id,
       status,
     }: {
-      id: number;
+      id: string;
       status: string;
     }) => {
       const res = await apiRequest("PATCH", `/api/documents/${id}/status`, {
@@ -87,7 +87,7 @@ export function DocumentList() {
       </TableHeader>
       <TableBody>
         {documents?.map((doc) => (
-          <TableRow key={doc.id}>
+          <TableRow key={doc._id}>
             <TableCell className="font-medium">{doc.title}</TableCell>
             <TableCell className="capitalize">{doc.type}</TableCell>
             <TableCell>
@@ -132,7 +132,7 @@ export function DocumentList() {
                     <DropdownMenuItem
                       onClick={() =>
                         updateStatusMutation.mutate({
-                          id: doc.id,
+                          id: doc._id,
                           status: "pending",
                         })
                       }

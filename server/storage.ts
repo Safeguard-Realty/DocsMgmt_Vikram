@@ -1,109 +1,110 @@
-import { users, documents, documentAccess } from "@shared/schema";
-import type { User, InsertUser, Document, DocumentAccess } from "@shared/schema";
-import createMemoryStore from "memorystore";
-import session from "express-session";
+import { User, Document, DocumentAccess } from './models/index.js';
+import createMemoryStore from 'memorystore';
+import session from 'express-session';
+import mongoose from 'mongoose';
 
 const MemoryStore = createMemoryStore(session);
 
-export interface IStorage {
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  
-  createDocument(doc: Omit<Document, "id" | "createdAt">): Promise<Document>;
-  getDocument(id: number): Promise<Document | undefined>;
-  getDocumentsByUser(userId: number): Promise<Document[]>;
-  updateDocumentStatus(id: number, status: string): Promise<Document>;
-  
-  setDocumentAccess(access: Omit<DocumentAccess, "id">): Promise<DocumentAccess>;
-  getDocumentAccess(documentId: number, userId: number): Promise<DocumentAccess | undefined>;
-  
-  sessionStore: session.SessionStore;
-}
-
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private documents: Map<number, Document>;
-  private documentAccess: Map<number, DocumentAccess>;
-  private currentUserId: number;
-  private currentDocId: number;
-  private currentAccessId: number;
-  sessionStore: session.SessionStore;
-
+export class MongoStorage {
   constructor() {
-    this.users = new Map();
-    this.documents = new Map();
-    this.documentAccess = new Map();
-    this.currentUserId = 1;
-    this.currentDocId = 1;
-    this.currentAccessId = 1;
     this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
+      checkPeriod: 86400000
     });
   }
 
-  async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+  async connect() {
+    try {
+      const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/realestate-dms';
+      console.log('Connecting to MongoDB...');
+      await mongoose.connect(uri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      });
+      console.log('MongoDB connected successfully');
+    } catch (error) {
+      console.error('MongoDB connection error:', error);
+      throw error;
+    }
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  // User methods
+  async getUser(id) {
+    return await User.findById(id);
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async getUserByUsername(username) {
+    return await User.findOne({ username });
   }
 
-  async createDocument(doc: Omit<Document, "id" | "createdAt">): Promise<Document> {
-    const id = this.currentDocId++;
-    const document: Document = {
-      ...doc,
-      id,
-      createdAt: new Date(),
-    };
-    this.documents.set(id, document);
-    return document;
+  async createUser(userData) {
+    try {
+      const user = new User(userData);
+      return await user.save();
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
   }
 
-  async getDocument(id: number): Promise<Document | undefined> {
-    return this.documents.get(id);
+  // Document methods
+  async createDocument(docData) {
+    try {
+      const doc = new Document(docData);
+      return await doc.save();
+    } catch (error) {
+      console.error('Error creating document:', error);
+      throw error;
+    }
   }
 
-  async getDocumentsByUser(userId: number): Promise<Document[]> {
-    const accessEntries = Array.from(this.documentAccess.values()).filter(
-      (access) => access.userId === userId
-    );
-    const documentIds = new Set(accessEntries.map((access) => access.documentId));
-    return Array.from(this.documents.values()).filter(
-      (doc) => documentIds.has(doc.id) || doc.uploadedBy === userId
-    );
+  async getDocument(id) {
+    return await Document.findById(id);
   }
 
-  async updateDocumentStatus(id: number, status: string): Promise<Document> {
-    const doc = await this.getDocument(id);
-    if (!doc) throw new Error("Document not found");
-    const updated = { ...doc, status };
-    this.documents.set(id, updated);
-    return updated;
+  async getDocumentsByUser(userId) {
+    try {
+      const userAccess = await DocumentAccess.find({ userId });
+      const accessibleDocIds = userAccess.map(access => access.documentId);
+
+      return await Document.find({
+        $or: [
+          { uploadedBy: userId },
+          { _id: { $in: accessibleDocIds } }
+        ]
+      });
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      throw error;
+    }
   }
 
-  async setDocumentAccess(access: Omit<DocumentAccess, "id">): Promise<DocumentAccess> {
-    const id = this.currentAccessId++;
-    const newAccess: DocumentAccess = { ...access, id };
-    this.documentAccess.set(id, newAccess);
-    return newAccess;
+  async updateDocumentStatus(id, status) {
+    try {
+      return await Document.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true }
+      );
+    } catch (error) {
+      console.error('Error updating document status:', error);
+      throw error;
+    }
   }
 
-  async getDocumentAccess(documentId: number, userId: number): Promise<DocumentAccess | undefined> {
-    return Array.from(this.documentAccess.values()).find(
-      (access) => access.documentId === documentId && access.userId === userId
-    );
+  // Document Access methods
+  async setDocumentAccess(access) {
+    try {
+      const docAccess = new DocumentAccess(access);
+      return await docAccess.save();
+    } catch (error) {
+      console.error('Error setting document access:', error);
+      throw error;
+    }
+  }
+
+  async getDocumentAccess(documentId, userId) {
+    return await DocumentAccess.findOne({ documentId, userId });
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new MongoStorage();
