@@ -16,6 +16,7 @@ export function DocumentUpload({ onSuccess }: DocumentUploadProps) {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [category, setCategory] = useState<string>("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -74,16 +75,38 @@ export function DocumentUpload({ onSuccess }: DocumentUploadProps) {
         </div>
 
         <div className="grid gap-2">
+          <Label htmlFor="category">Document Category</Label>
+          <Select name="category" required onValueChange={setCategory}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select document category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="kyc">KYC</SelectItem>
+              <SelectItem value="property">Property</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid gap-2">
           <Label htmlFor="type">Document Type</Label>
           <Select name="type" required>
             <SelectTrigger>
               <SelectValue placeholder="Select document type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="deed">Title Deed</SelectItem>
-              <SelectItem value="contract">Sales Contract</SelectItem>
-              <SelectItem value="mortgage">Mortgage Agreement</SelectItem>
-              <SelectItem value="inspection">Inspection Report</SelectItem>
+              {category === "property" ? (
+                <>
+                  <SelectItem value="deed">Title Deed</SelectItem>
+                  <SelectItem value="contract">Sales Contract</SelectItem>
+                  <SelectItem value="mortgage">Mortgage Agreement</SelectItem>
+                  <SelectItem value="inspection">Inspection Report</SelectItem>
+                </>
+              ) : category === "kyc" ? (
+                <>
+                  <SelectItem value="aadhar">Aadhar Card</SelectItem>
+                  <SelectItem value="passport">Passport</SelectItem>
+                </>
+              ) : null}
             </SelectContent>
           </Select>
         </div>
