@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { storage } from "./storage.js"; // Import MongoStorage
+import { storage } from "./storage.js";
 
 const app = express();
 app.use(express.json());
@@ -25,11 +25,7 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
+      if (logLine.length > 80) logLine = logLine.slice(0, 79) + "…";
       log(logLine);
     }
   });
@@ -37,19 +33,22 @@ app.use((req, res, next) => {
   next();
 });
 
-// Function to start the server after MongoDB connects
+// Function to start the server after connecting to both databases
 async function startServer() {
   try {
     // Connect to MongoDB
-    await storage.connect();
+    await storage.mongo.connect();
     log("MongoDB connected successfully");
+
+    // Connect to PostgreSQL
+    await storage.postgres.connect();
+    log("PostgreSQL connected successfully");
 
     const server = registerRoutes(app);
 
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";
-
       res.status(status).json({ message });
       throw err;
     });
@@ -61,17 +60,15 @@ async function startServer() {
       serveStatic(app);
     }
 
-    // Start Express server on port 5000
     const PORT = 5000;
     server.listen(PORT, "0.0.0.0", () => {
-      log(`serving on port ${PORT}`);
+      log(`Serving on port ${PORT}`);
     });
 
   } catch (error) {
-    console.error("Failed to connect to MongoDB:", error);
-    process.exit(1); // Stop the app if MongoDB connection fails
+    console.error("Failed to connect to the databases:", error);
+    process.exit(1);
   }
 }
 
-// Call the function to start the server
 startServer();

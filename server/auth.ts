@@ -46,7 +46,7 @@ export function setupAuth(app: Express) {
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
-      const user = await storage.getUserByUsername(username);
+      const user = await storage.mongo.getUserByUsername(username);
       if (!user || !(await comparePasswords(password, user.password))) {
         return done(null, false);
       } else {
@@ -57,17 +57,17 @@ export function setupAuth(app: Express) {
 
   passport.serializeUser((user, done) => done(null, user.id));
   passport.deserializeUser(async (id: number, done) => {
-    const user = await storage.getUser(id);
+    const user = await storage.mongo.getUser(id);
     done(null, user);
   });
 
   app.post("/api/register", async (req, res, next) => {
-    const existingUser = await storage.getUserByUsername(req.body.username);
+    const existingUser = await storage.mongo.getUserByUsername(req.body.username);
     if (existingUser) {
       return res.status(400).send("Username already exists");
     }
 
-    const user = await storage.createUser({
+    const user = await storage.mongo.createUser({
       ...req.body,
       password: await hashPassword(req.body.password),
     });

@@ -2,10 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, Upload } from "lucide-react";
 
 interface DocumentUploadProps {
@@ -16,7 +22,37 @@ export function DocumentUpload({ onSuccess }: DocumentUploadProps) {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [categories, setCategories] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("");
+  const [documentTypes, setDocumentTypes] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await fetch("api/upload-docs/categories");
+        const data = await res.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
+    }
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (category) {
+      async function fetchDocumentTypes() {
+        try {
+          const res = await fetch(`api/upload-docs/types/${category}`);
+          const data = await res.json();
+          setDocumentTypes(data);
+        } catch (error) {
+          console.error("Failed to fetch document types", error);
+        }
+      }
+      fetchDocumentTypes();
+    }
+  }, [category]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -81,8 +117,11 @@ export function DocumentUpload({ onSuccess }: DocumentUploadProps) {
               <SelectValue placeholder="Select document category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="kyc">KYC</SelectItem>
-              <SelectItem value="property">Property</SelectItem>
+              {categories?.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -94,30 +133,13 @@ export function DocumentUpload({ onSuccess }: DocumentUploadProps) {
               <SelectValue placeholder="Select document type" />
             </SelectTrigger>
             <SelectContent>
-              {category === "property" ? (
-                <>
-                  <SelectItem value="deed">Title Deed</SelectItem>
-                  <SelectItem value="contract">Sales Contract</SelectItem>
-                  <SelectItem value="mortgage">Mortgage Agreement</SelectItem>
-                  <SelectItem value="inspection">Inspection Report</SelectItem>
-                </>
-              ) : category === "kyc" ? (
-                <>
-                  <SelectItem value="aadhar">Aadhar Card</SelectItem>
-                  <SelectItem value="passport">Passport</SelectItem>
-                </>
-              ) : null}
+              {documentTypes.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-        </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="region">Region</Label>
-          <Input
-            id="region"
-            name="metadata.region"
-            placeholder="e.g. New York, USA"
-          />
         </div>
 
         <div className="grid gap-2">
