@@ -28,7 +28,7 @@ const ProcessDoc = ({ id }) => {
             max_retries: "3",
           });
       
-          const ocrApiUrl = `http://127.0.0.1:8000/api/v1/ocr/process-document?${params.toString()}`;
+          const ocrApiUrl = `http://127.0.0.1:5120/api/v1/ocr/process-document?${params.toString()}`;
       
           const response = await fetch(ocrApiUrl, { method: "POST" });
           if (!response.ok) throw new Error("Failed to fetch OCR results");
