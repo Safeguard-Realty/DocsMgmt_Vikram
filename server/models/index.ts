@@ -5,28 +5,26 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { 
     type: String, 
-    required: true,
-    enum: ['admin', 'agent', 'buyer', 'seller', 'legal', 'notary']
+    required: true
   },
   fullName: { type: String, required: true }
 });
+
 const documentSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
   category: { 
     type: String, 
-    required: true, 
-    enum: ['property', 'kyc'] // ✅ Added category with enum validation
+    required: true // ❌ Removed enum validation
   },
   type: { 
     type: String, 
-    required: true,
-    enum: ['deed', 'contract', 'mortgage', 'inspection', 'aadhar', 'passport'] // ✅ Ensure type aligns with category
+    required: true // ❌ Removed enum validation
   },
   status: { 
     type: String, 
     required: true,
-    enum: ['draft', 'pending', 'approved', 'rejected'],
+    enum: ['draft', 'pending', 'approved', 'rejected'], // You can remove this too if needed
     default: 'draft'
   },
   uploadedBy: { 

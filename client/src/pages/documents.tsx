@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
+import { DocsStatus } from "@/components/docstatus";
 
 export default function Documents() {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -46,6 +47,7 @@ export default function Documents() {
           </Dialog>
         </div>
 
+        <DocsStatus/>
         <DocumentList />
       </div>
     </Layout>

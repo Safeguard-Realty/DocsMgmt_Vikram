@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "wouter";
 
 const statusColors = {
   draft: "bg-gray-500",
@@ -42,7 +43,7 @@ export function DocumentList() {
       id: string;
       status: string;
     }) => {
-      const res = await apiRequest("PATCH", `/api/documents/${id}/status`, {
+      const res = await apiRequest("PATCH", `/api/change-docstatus/${id}`, {
         status,
       });
       return res.json();
@@ -111,12 +112,14 @@ export function DocumentList() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => window.open(doc.fileUrl, "_blank")}
-                  >
-                    <FileText className="mr-2 h-4 w-4" />
-                    View
+                <Link href={`/documents/${doc._id}`} passHref>
+                  <DropdownMenuItem asChild>
+                    <Button variant="ghost" size="sm">
+                      <FileText className="mr-2 h-4 w-4" />
+                      View
+                    </Button>
                   </DropdownMenuItem>
+                </Link>
                   <DropdownMenuItem
                     onClick={() => {
                       const a = document.createElement("a");

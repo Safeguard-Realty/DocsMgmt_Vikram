@@ -84,7 +84,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-sm capitalize">{doc.status}</div>
-                    <Link href={`/documents/${doc.id}`}>
+                    <Link href={`/documents/${doc._id}`}>
                       <Button variant="ghost" size="sm">
                         View
                       </Button>

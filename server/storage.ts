@@ -63,7 +63,7 @@ export class MongoStorage {
   }
 
   async createDocument(docData: Partial<IDocument>): Promise<IDocument> {
-    if (!docData.name) throw new Error('Document name is required.');
+    if (!docData.title) throw new Error('Document name/title is required.');
     const doc = new Document(docData);
     return await doc.save();
   }
