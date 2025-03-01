@@ -100,12 +100,10 @@ export class PostgresStorage {
   pool: pg.Pool;
 
   constructor() {
+    const connectionString = process.env.PGDATABASE_URL || 'postgresql://postgres:pgadmin@localhost:5432/DocsRuleEngine';
     this.pool = new Pool({
-      user: process.env.PG_USER || 'postgres',
-      host: process.env.PG_HOST || 'localhost',
-      database: process.env.PG_DATABASE || 'DocsRuleEngine',
-      password: process.env.PG_PASSWORD || 'pgadmin',
-      port: Number(process.env.PG_PORT) || 5432,
+      connectionString,
+      ssl: process.env.PGSSLMODE ? { rejectUnauthorized: false } : undefined,
     });
   }
 
