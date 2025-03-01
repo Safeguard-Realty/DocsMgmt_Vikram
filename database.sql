@@ -1,25 +1,25 @@
-CREATE DATABASE IF NOT EXISTS docs-control;
+-- CREATE DATABASE IF NOT EXISTS docs-control;
 
-CREATE TABLE documents_metadata (
-    id SERIAL PRIMARY KEY,
-    document_name TEXT NOT NULL,
-    document_type TEXT NOT NULL,
-    party_responsible TEXT,  -- Can be NULL if not applicable
-    api_endpoint TEXT NOT NULL,
-    required_action TEXT NOT NULL,
-    biometric_required BOOLEAN NOT NULL DEFAULT FALSE,
-    geolocation_required BOOLEAN NOT NULL DEFAULT FALSE,
-    email_notification TEXT NOT NULL, -- Comma-separated list of recipients
-    for_india BOOLEAN NOT NULL DEFAULT FALSE,
-    for_us BOOLEAN NOT NULL DEFAULT FALSE
-);
+-- CREATE TABLE documents_metadata (
+--     id SERIAL PRIMARY KEY,
+--     document_name TEXT NOT NULL,
+--     document_type TEXT NOT NULL,
+--     party_responsible TEXT,  -- Can be NULL if not applicable
+--     api_endpoint TEXT NOT NULL,
+--     required_action TEXT NOT NULL,
+--     biometric_required BOOLEAN NOT NULL DEFAULT FALSE,
+--     geolocation_required BOOLEAN NOT NULL DEFAULT FALSE,
+--     email_notification TEXT NOT NULL, -- Comma-separated list of recipients
+--     for_india BOOLEAN NOT NULL DEFAULT FALSE,
+--     for_us BOOLEAN NOT NULL DEFAULT FALSE
+-- );
 
-CREATE TABLE kyc_requirements (
-    id SERIAL PRIMARY KEY,
-    kyc_type TEXT NOT NULL,
-    required_in_india BOOLEAN NOT NULL DEFAULT FALSE,
-    required_in_us BOOLEAN NOT NULL DEFAULT FALSE
-);
+-- CREATE TABLE kyc_requirements (
+--     id SERIAL PRIMARY KEY,
+--     kyc_type TEXT NOT NULL,
+--     required_in_india BOOLEAN NOT NULL DEFAULT FALSE,
+--     required_in_us BOOLEAN NOT NULL DEFAULT FALSE
+-- );
 
 
 INSERT INTO document_rules 
