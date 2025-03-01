@@ -92,13 +92,17 @@ export function DocumentList() {
             <TableCell className="font-medium">{doc.title}</TableCell>
             <TableCell className="capitalize">{doc.type}</TableCell>
             <TableCell>
-              <Badge
-                variant="secondary"
-                className={`${statusColors[doc.status as keyof typeof statusColors]
-                  } text-white`}
+            <TableCell>
+            <Badge
+                className={`${statusColors[doc.status as keyof typeof statusColors]} text-white hover:opacity-90`}
               >
-                {doc.status}
+                {doc.status === "draft"
+                  ? "Pending Upload"
+                  : doc.status === "pending"
+                  ? "Forwarded for Review"
+                  : doc.status}
               </Badge>
+            </TableCell>
             </TableCell>
             <TableCell>
               {new Date(doc.createdAt).toLocaleDateString()}

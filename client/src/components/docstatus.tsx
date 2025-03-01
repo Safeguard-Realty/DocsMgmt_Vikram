@@ -25,7 +25,7 @@ export function DocsStatus() {
             category.subcategories?.filter((sub) => sub.uploaded).length || 0;
           const uploadedDocs = category.subcategories?.filter((sub) => sub.uploaded) || [];
           const missingDocs = category.subcategories?.filter((sub) => !sub.uploaded) || [];
-          const status = uploaded === total ? "Approved" : "Submitted";
+          const status = uploaded === total ? "All Uploaded" : "Pending Uploads";
 
           return (
             <Tooltip key={category.name}>
@@ -33,7 +33,7 @@ export function DocsStatus() {
                 <Card className="cursor-pointer">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">{category.name}</CardTitle>
-                    {status === "Approved" ? (
+                    {status === "All Uploaded" ? (
                       <CheckCircle className="h-4 w-4 text-green-500" />
                     ) : (
                       <AlertCircle className="h-4 w-4 text-yellow-500" />
